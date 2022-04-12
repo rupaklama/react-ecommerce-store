@@ -1,50 +1,33 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { Product } from "../models/product";
+import { Container, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 
+import Header from "./Header";
 import Catalog from "../../features/catalog/Catalog";
-import { Typography } from "@mui/material";
 
 const App = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [darkMode, setDarkMode] = useState(false);
+  const paletteType = darkMode ? "dark" : "light";
 
-  useEffect(() => {
-    // fetch("http://localhost:5162/api/Products")
-    //   .then(response => response.json())
-    //   .then(data => setProducts(data));
-
-    const fetchData = async () => {
-      try {
-        const response = await fetch("http://localhost:5162/api/Products");
-        const data = await response.json();
-        setProducts(data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const addProduct = () => {
-    setProducts(prevState => [
-      ...prevState,
-      {
-        id: prevState.length + 1,
-        name: "product" + (prevState.length + 1),
-        price: prevState.length * 100 + 100,
-        brand: "some brand",
-        description: "some description",
-        pictureUrl: "http://picsum.photos/200",
+  const theme = createTheme({
+    palette: {
+      mode: paletteType,
+      background: {
+        default: paletteType === "light" ? "#eaeaea" : "#121212",
       },
-    ]);
-  };
+    },
+  });
+
+  const handleThemeChange = () => setDarkMode(!darkMode);
 
   return (
-    <>
-      <Typography variant="h1">My Store</Typography>
-      <Catalog products={products} addProduct={addProduct} />
-    </>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Header darkMode={darkMode} handleThemeChange={handleThemeChange} />
+      <Container>
+        <Catalog />
+      </Container>
+    </ThemeProvider>
   );
 };
 
