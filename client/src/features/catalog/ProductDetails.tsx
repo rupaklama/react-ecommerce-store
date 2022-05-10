@@ -10,8 +10,9 @@ import {
   Typography,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+
 import { Product } from "../../app/models/product";
+import agent from "../../app/api/agent";
 
 const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,10 +20,15 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:5162/api/Products/${id}`)
-      .then(res => setProduct(res.data))
-      .catch(err => console.log(err))
+    // axios
+    //   .get(`http://localhost:5162/api/Products/${id}`)
+    //   .then(res => setProduct(res.data))
+    //   .catch(err => console.log(err))
+    //   .finally(() => setLoading(false));
+
+    agent.Catalog.details(parseInt(id))
+      .then(res => setProduct(res))
+      .catch(err => console.log(err.response))
       .finally(() => setLoading(false));
   }, [id]);
 
