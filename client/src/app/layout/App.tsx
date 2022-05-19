@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Route } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 
 import { Container, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 
@@ -12,6 +12,8 @@ import ContactPage from "../../features/contact/ContactPage";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ServerError from "../errors/ServerError";
+import NotFound from "../errors/NotFound";
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -34,11 +36,15 @@ const App = () => {
       <CssBaseline />
       <Header darkMode={darkMode} handleThemeChange={handleThemeChange} />
       <Container>
-        <Route exact path="/" component={HomePage} />
-        <Route exact path="/catalog" component={Catalog} />
-        <Route exact path="/catalog/:id" component={ProductDetails} />
-        <Route exact path="/about" component={AboutPage} />
-        <Route exact path="/contact" component={ContactPage} />
+        <Switch>
+          <Route exact path="/" component={HomePage} />
+          <Route exact path="/catalog" component={Catalog} />
+          <Route exact path="/catalog/:id" component={ProductDetails} />
+          <Route exact path="/about" component={AboutPage} />
+          <Route exact path="/contact" component={ContactPage} />
+          <Route exact path="/server-error" component={ServerError} />
+          <Route component={NotFound} />
+        </Switch>
       </Container>
     </ThemeProvider>
   );

@@ -11,6 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import agent from "../../app/api/agent";
+import ServerError from "../../app/errors/ServerError";
 
 const AboutPage = () => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -68,6 +69,8 @@ const AboutPage = () => {
           </List>
         </Alert>
       )}
+
+      <ServerError />
     </Container>
   );
 };

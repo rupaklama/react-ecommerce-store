@@ -1,5 +1,9 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
+import { history } from "../..";
+
+/* to delay the response */
+const sleep = () => new Promise(resolve => setTimeout(resolve, 500));
 
 axios.defaults.baseURL = "http://localhost:5162/api/";
 
@@ -7,7 +11,8 @@ const responseBody = (response: AxiosResponse) => response.data;
 
 /* Intercepting axios response to do something with it */
 axios.interceptors.response.use(
-  response => {
+  async response => {
+    await sleep();
     return response;
   },
   (error: AxiosError) => {
@@ -35,7 +40,10 @@ axios.interceptors.response.use(
         break;
 
       case 500:
-        toast.error(data.title);
+        history.push({
+          pathname: "/server-error",
+          state: { error: data },
+        });
         break;
 
       default:
