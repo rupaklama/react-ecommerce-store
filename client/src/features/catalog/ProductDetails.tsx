@@ -7,6 +7,7 @@ import {
   TableCell,
   TableContainer,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
@@ -15,11 +16,19 @@ import { Product } from "../../app/models/product";
 import agent from "../../app/api/agent";
 import NotFound from "../../app/errors/NotFound";
 import Loader from "../../app/layout/Loader";
+import { useStoreContext } from "../../app/context/StoreContext";
+import { LoadingButton } from "@mui/lab";
 
 const ProductDetails = () => {
+  const { basket, setBasket, removeItem } = useStoreContext();
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+
+  console.log(basket);
+  const item = basket?.items.find(i => i.productId === product?.id);
 
   useEffect(() => {
     // axios
@@ -28,11 +37,40 @@ const ProductDetails = () => {
     //   .catch(err => console.log(err))
     //   .finally(() => setLoading(false));
 
+    if (item) setQuantity(item.quantity);
+
     agent.Catalog.details(parseInt(id))
       .then(res => setProduct(res))
       .catch(err => console.log(err))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, item]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (parseInt(e.target.value) >= 0) {
+      setQuantity(parseInt(e.target.value));
+    }
+  };
+
+  const handleUpdateCart = () => {
+    setSubmitting(true);
+
+    // if no item or local state Qty is greater than in the app state
+    if (!item || quantity > item.quantity) {
+      // quantity - local state qty
+      const addQty = item ? quantity - item.quantity : quantity;
+      agent.Basket.addItem(product?.id!, addQty)
+        .then(basket => setBasket(basket))
+        .catch(err => console.error(err))
+        .finally(() => setSubmitting(false));
+    } else {
+      // if we do have an item & local qty is less than app state qty
+      const minusQty = item ? item.quantity - quantity : quantity;
+      agent.Basket.removeItem(product?.id!, minusQty)
+        .then(() => removeItem(product?.id!, minusQty))
+        .catch(err => console.error(err))
+        .finally(() => setSubmitting(false));
+    }
+  };
 
   if (loading) return <Loader message="loading product..." />;
 
@@ -77,6 +115,34 @@ const ProductDetails = () => {
             </TableBody>
           </Table>
         </TableContainer>
+
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <TextField
+              variant="outlined"
+              type="number"
+              label="Quantity in Cart"
+              fullWidth
+              value={quantity}
+              onChange={handleInputChange}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <LoadingButton
+              disabled={item?.quantity === quantity || (!item && quantity === 0)}
+              loading={submitting}
+              onClick={handleUpdateCart}
+              sx={{ height: "55px" }}
+              color="primary"
+              size="large"
+              variant="contained"
+              fullWidth
+            >
+              {item ? "Update Quantity" : "Add to Cart"}
+            </LoadingButton>
+          </Grid>
+        </Grid>
       </Grid>
     </Grid>
   );
