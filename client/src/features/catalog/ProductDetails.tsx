@@ -16,11 +16,15 @@ import { Product } from "../../app/models/product";
 import agent from "../../app/api/agent";
 import NotFound from "../../app/errors/NotFound";
 import Loader from "../../app/layout/Loader";
-import { useStoreContext } from "../../app/context/StoreContext";
+
 import { LoadingButton } from "@mui/lab";
+import { useAppDispatch, useAppSelector } from "../../app/store/configureStore";
+import { removeItem, setBasket } from "../basket/basketSlice";
 
 const ProductDetails = () => {
-  const { basket, setBasket, removeItem } = useStoreContext();
+  const { basket } = useAppSelector(state => state.basket);
+  const dispatch = useAppDispatch();
+
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,14 +63,14 @@ const ProductDetails = () => {
       // quantity - local state qty
       const addQty = item ? quantity - item.quantity : quantity;
       agent.Basket.addItem(product?.id!, addQty)
-        .then(basket => setBasket(basket))
+        .then(basket => dispatch(setBasket(basket)))
         .catch(err => console.error(err))
         .finally(() => setSubmitting(false));
     } else {
       // if we do have an item & local qty is less than app state qty
       const minusQty = item ? item.quantity - quantity : quantity;
       agent.Basket.removeItem(product?.id!, minusQty)
-        .then(() => removeItem(product?.id!, minusQty))
+        .then(() => dispatch(removeItem({ productId: product?.id!, quantity: minusQty })))
         .catch(err => console.error(err))
         .finally(() => setSubmitting(false));
     }
