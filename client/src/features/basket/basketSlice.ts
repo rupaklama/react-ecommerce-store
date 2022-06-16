@@ -13,13 +13,14 @@ const initialState: BasketState = {
 };
 
 /* Fetch Async Function inside of Redux Store, <Basket, void, {}> - Basket & Object type */
-// Async Action Creator with createAsyncThunks
-export const addBasketItemAsync = createAsyncThunk<Basket, { productId: number; quantity: number }>(
+// note - first arg is what we are returning from this method <Basket> type,
+// second arg is arguments types this method takes
+export const addBasketItemAsync = createAsyncThunk<Basket, { productId: number; quantity?: number }>(
   // name or typePrefix
   "basket/addBasketItemAsync",
 
-  // async function
-  async ({ productId, quantity }) => {
+  // payload creator - async function to make api request
+  async ({ productId, quantity = 1 }) => {
     try {
       return await agent.Basket.addItem(productId, quantity);
     } catch (err) {
@@ -52,12 +53,17 @@ export const basketSlice = createSlice({
   // Add reducers for additional action types here, and handle loading state as needed
   extraReducers: builder => {
     // note - createAsyncThunk creates an Action creator, meaning it is an Action Creator not just Async function
-    // addBasketItemAsync. & we also get access to our state & action
+
+    // addCase() - Adds a case reducer to handle a single exact action type created by createAsyncThunk
+    // eg. addBasketItemAsync.options - default options
+
     // Api pending
+    // note - we have access to state & action inside of addCase method
     builder.addCase(addBasketItemAsync.pending, (state, action) => {
       // we can use whatever methods like in reducers above to set our state here
-      console.log(action);
-      state.status = "pendingAddItem";
+      // console.log(action);
+      // check to see if particular item is loading
+      state.status = "pendingAddItem" + action.meta.arg.productId;
     });
 
     // Api fulfilled
@@ -67,7 +73,7 @@ export const basketSlice = createSlice({
     });
 
     // Api Rejected
-    builder.addCase(addBasketItemAsync.fulfilled, state => {
+    builder.addCase(addBasketItemAsync.rejected, state => {
       state.status = "idle";
     });
   },

@@ -9,31 +9,22 @@ import {
   CardMedia,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+
 import { Link } from "react-router-dom";
-import agent from "../../app/api/agent";
 
 import { Product } from "../../app/models/product";
-import { useAppDispatch } from "../../app/store/configureStore";
+import { useAppDispatch, useAppSelector } from "../../app/store/configureStore";
 import { currencyFormat } from "../../app/util/util";
-import { setBasket } from "../basket/basketSlice";
+import { addBasketItemAsync } from "../basket/basketSlice";
 
 interface props {
   product: Product;
 }
 
 const ProductCard: React.FC<props> = ({ product }) => {
-  const [loading, setLoading] = useState(false);
+  const { status } = useAppSelector(state => state.basket);
 
   const dispatch = useAppDispatch();
-
-  const handleAddItem = (productId: number) => {
-    setLoading(true);
-    agent.Basket.addItem(productId)
-      .then(basket => dispatch(setBasket(basket)))
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false));
-  };
 
   return (
     <Card>
@@ -61,7 +52,11 @@ const ProductCard: React.FC<props> = ({ product }) => {
       </CardContent>
 
       <CardActions>
-        <LoadingButton loading={loading} size="small" onClick={() => handleAddItem(product.id)}>
+        <LoadingButton
+          loading={status.includes("pendingAddItem" + product.id)}
+          size="small"
+          onClick={() => dispatch(addBasketItemAsync({ productId: product.id }))}
+        >
           Add to cart
         </LoadingButton>
         <Button size="small" component={Link} to={`/catalog/${product.id}`}>
