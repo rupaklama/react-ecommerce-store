@@ -15,6 +15,7 @@ import ServerError from "../../app/errors/ServerError";
 
 const AboutPage = () => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  // console.log(validationErrors);  ['This is the first error', 'This is the second error']
 
   const getValidationError = () => {
     agent.TestErrors.getValidationError()

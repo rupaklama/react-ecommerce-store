@@ -18,7 +18,7 @@ const initialState: CounterState = {
 // automatically generates action creators and action types that correspond to the reducers and state
 export const counterSlice = createSlice({
   // unique name for our 'slice' - piece of state
-  name: "counter",
+  name: "Counter",
   initialState,
 
   // The `reducers` field lets us define reducers and generate associated action creators

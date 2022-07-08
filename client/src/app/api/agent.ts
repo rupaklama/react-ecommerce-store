@@ -10,30 +10,39 @@ axios.defaults.baseURL = "http://localhost:5162/api/";
 // to allow to use the cookie in client side
 axios.defaults.withCredentials = true;
 
+// getting axios response data & storing it here
 const responseBody = (response: AxiosResponse) => response.data;
 
 /* Intercepting axios response to do something with it */
 axios.interceptors.response.use(
   async response => {
     await sleep();
+    // on success
     return response;
   },
+  // on failure
   (error: AxiosError) => {
     // console.log("caught by interceptor");
     const { data, status } = error.response as any;
+    // console.log(data);
 
     switch (status) {
       case 400:
-        // if data has an error object
+        // note - Validation Errors are also 400 Bad Request
+        // if data has an error object from the backend
         if (data.errors) {
           const modelStateErrors: string[] = [];
 
+          // error object has key/value
           for (const key in data.errors) {
             if (data.errors[key]) {
+              // adding error strings values in a new array
               modelStateErrors.push(data.errors[key]);
             }
           }
 
+          // flat it to one single array & throw is to stop the execution
+          // ['This is the first error', 'This is the second error']
           throw modelStateErrors.flat();
         }
         toast.error(data.title);
@@ -54,10 +63,12 @@ axios.interceptors.response.use(
     }
 
     // note - need to always return Error object from the Interceptor
+    // rejecting current promise to return error object
     return Promise.reject(error);
   }
 );
 
+// http requests
 const requests = {
   get: (url: string) => axios.get(url).then(responseBody),
   post: (url: string, body: {}) => axios.post(url, body).then(responseBody),

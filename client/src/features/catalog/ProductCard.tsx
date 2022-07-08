@@ -55,7 +55,7 @@ const ProductCard: React.FC<props> = ({ product }) => {
         <LoadingButton
           loading={status.includes("pendingAddItem" + product.id)}
           size="small"
-          onClick={() => dispatch(addBasketItemAsync({ productId: product.id }))}
+          onClick={() => dispatch(addBasketItemAsync({ productId: product.id, quantity: 1 }))}
         >
           Add to cart
         </LoadingButton>
