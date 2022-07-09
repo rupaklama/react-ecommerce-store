@@ -12,22 +12,26 @@ import {
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 
-import { Product } from "../../app/models/product";
-import agent from "../../app/api/agent";
 import NotFound from "../../app/errors/NotFound";
 import Loader from "../../app/layout/Loader";
 
 import { LoadingButton } from "@mui/lab";
 import { useAppDispatch, useAppSelector } from "../../app/store/configureStore";
 import { addBasketItemAsync, removeBasketItemAsync } from "../basket/basketSlice";
+import { fetchProductAsync, productSelectors } from "./catalogSlice";
 
 const ProductDetails = () => {
   const { basket, status } = useAppSelector(state => state.basket);
+  const { status: productStatus } = useAppSelector(state => state.catalog);
+
   const dispatch = useAppDispatch();
 
   const { id } = useParams<{ id: string }>();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
+
+  // note - this selector will resolve loading data all the time
+  // Product will be fetched once and store in our app
+  const product = useAppSelector(state => productSelectors.selectById(state, id));
+
   const [quantity, setQuantity] = useState(0);
 
   const item = basket?.items.find(i => i.productId === product?.id);
@@ -41,11 +45,8 @@ const ProductDetails = () => {
 
     if (item) setQuantity(item.quantity);
 
-    agent.Catalog.details(parseInt(id))
-      .then(res => setProduct(res))
-      .catch(err => console.log(err))
-      .finally(() => setLoading(false));
-  }, [id, item]);
+    if (!product) dispatch(fetchProductAsync(parseInt(id)));
+  }, [dispatch, id, item, product]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (parseInt(e.target.value) >= 0) {
@@ -66,7 +67,7 @@ const ProductDetails = () => {
     }
   };
 
-  if (loading) return <Loader message="loading product..." />;
+  if (productStatus.includes("pending")) return <Loader message="loading product..." />;
 
   if (!product) return <NotFound />;
 

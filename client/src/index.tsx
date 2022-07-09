@@ -9,8 +9,10 @@ import { StoreProvider } from "./app/context/StoreContext";
 
 import { Provider } from "react-redux";
 import { store } from "./app/store/configureStore";
+// import { fetchProdcutAsync } from "./features/catalog/catalogSlice";
 
 // console.log(store.getState());
+// store.dispatch(fetchProdcutAsync());
 
 export const history = createBrowserHistory();
 
