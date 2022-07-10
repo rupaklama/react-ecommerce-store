@@ -20,11 +20,13 @@ export const addBasketItemAsync = createAsyncThunk<Basket, { productId: number; 
   "basket/addBasketItemAsync",
 
   // payload creator - async function to make api request
-  async ({ productId, quantity = 1 }) => {
+  async ({ productId, quantity = 1 }, thunkAPI) => {
     try {
       return await agent.Basket.addItem(productId, quantity);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue({
+        error: err.data,
+      });
     }
   }
 );
@@ -36,11 +38,13 @@ export const removeBasketItemAsync = createAsyncThunk<
 >(
   "basket/removeBasketItemAsync",
 
-  async ({ productId, quantity }) => {
+  async ({ productId, quantity }, thunkAPI) => {
     try {
       await agent.Basket.removeItem(productId, quantity);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue({
+        error: err.data,
+      });
     }
   }
 );
@@ -80,8 +84,9 @@ export const basketSlice = createSlice({
     });
 
     // Api Rejected
-    builder.addCase(addBasketItemAsync.rejected, state => {
+    builder.addCase(addBasketItemAsync.rejected, (state, action) => {
       state.status = "idle";
+      console.log(action.payload);
     });
 
     // basket remove async function
@@ -104,8 +109,9 @@ export const basketSlice = createSlice({
       state.status = "idle";
     });
 
-    builder.addCase(removeBasketItemAsync.rejected, state => {
+    builder.addCase(removeBasketItemAsync.rejected, (state, action) => {
       state.status = "idle";
+      console.log(action.payload);
     });
   },
 });

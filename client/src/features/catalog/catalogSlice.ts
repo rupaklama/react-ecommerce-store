@@ -14,22 +14,30 @@ import { RootState } from "../../app/store/configureStore";
 const productsAdapter = createEntityAdapter<Product>();
 
 // async thunk to get list of products
-export const fetchProductsAsync = createAsyncThunk<Product[]>("catalog/fetchProductsAsync", async () => {
-  try {
-    return await agent.Catalog.list();
-  } catch (err) {
-    console.error(err);
+export const fetchProductsAsync = createAsyncThunk<Product[]>(
+  "catalog/fetchProductsAsync",
+  async (_, thunkAPI) => {
+    try {
+      return await agent.Catalog.list();
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue({
+        error: error.data,
+      });
+    }
   }
-});
+);
 
 // single product
 export const fetchProductAsync = createAsyncThunk<Product, number>(
   "catalog/fetchProductAsync",
-  async productId => {
+  async (productId, thunkAPI) => {
     try {
       return await agent.Catalog.details(productId);
-    } catch (err) {
-      console.error(err);
+    } catch (error: any) {
+      // note - on error, reducer function will be Rejected rather than Fullfilled
+      return thunkAPI.rejectWithValue({
+        error: error.data,
+      });
     }
   }
 );
@@ -61,7 +69,8 @@ export const catalogSlice = createSlice({
       state.productsLoaded = true;
     });
 
-    builder.addCase(fetchProductsAsync.rejected, state => {
+    builder.addCase(fetchProductsAsync.rejected, (state, action) => {
+      console.log(action.payload);
       state.status = "idle";
     });
 
@@ -76,7 +85,8 @@ export const catalogSlice = createSlice({
       state.status = "idle";
     });
 
-    builder.addCase(fetchProductAsync.rejected, state => {
+    builder.addCase(fetchProductAsync.rejected, (state, action) => {
+      console.log(action);
       state.status = "idle";
     });
   },
