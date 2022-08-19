@@ -28,7 +28,6 @@ const ProductDetails = () => {
 
   const { id } = useParams<{ id: string }>();
 
-  // note - this selector will resolve loading data all the time
   // Product will be fetched once and store in our app
   const product = useAppSelector(state => productSelectors.selectById(state, id));
 
@@ -55,10 +54,10 @@ const ProductDetails = () => {
   };
 
   const handleUpdateCart = () => {
-    // if no item or local state Qty is greater than in the app state
+    // if no item or local state Qty is greater than in the app state, we are adding item or more quantity
     if (!item || quantity > item.quantity) {
       // quantity - local state qty
-      const addQty = item ? quantity - item.quantity : quantity;
+      const addQty = item ? quantity - item.quantity : quantity; // or add new item qty
       dispatch(addBasketItemAsync({ productId: product?.id!, quantity: addQty }));
     } else {
       // if we do have an item & local qty is less than app state qty

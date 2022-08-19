@@ -13,13 +13,15 @@ const initialState: BasketState = {
 };
 
 /* Fetch Async Function inside of Redux Store, <Basket, void, {}> - Basket & Object type */
+// note - createAsyncThunk<void, void, {}> is a 'void' function by default
 // note - first arg is what we are returning from this method <Basket> type,
-// second arg is arguments types this method takes - payload creator
+// second arg is argument type this method takes - payload creator
 export const addBasketItemAsync = createAsyncThunk<Basket, { productId: number; quantity: number }>(
   // name or typePrefix
   "basket/addBasketItemAsync",
 
   // payload creator - async function to make api request
+  // note - thunkAPI is available from createAsyncThunk to handle errors
   async ({ productId, quantity = 1 }, thunkAPI) => {
     try {
       return await agent.Basket.addItem(productId, quantity);
@@ -32,10 +34,7 @@ export const addBasketItemAsync = createAsyncThunk<Basket, { productId: number; 
 );
 
 // when removing item in our api, there will be no return, therefore return type is void - first arg
-export const removeBasketItemAsync = createAsyncThunk<
-  void,
-  { productId: number; quantity: number; name?: string }
->(
+export const removeBasketItemAsync = createAsyncThunk<void, { productId: number; quantity: number; name?: string }>(
   "basket/removeBasketItemAsync",
 
   async ({ productId, quantity }, thunkAPI) => {
@@ -102,8 +101,10 @@ export const basketSlice = createSlice({
 
       if (itemIndex === -1 || itemIndex === undefined) return;
 
+      // decrement the count
       state.basket!.items[itemIndex].quantity -= quantity;
 
+      // item quantity = 0
       if (state.basket?.items[itemIndex].quantity === 0) state.basket.items.splice(itemIndex, 1);
 
       state.status = "idle";

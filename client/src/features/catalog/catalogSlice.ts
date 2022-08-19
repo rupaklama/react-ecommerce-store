@@ -10,16 +10,18 @@ import { RootState } from "../../app/store/configureStore";
  Selectors that know how to work with the data. 
  */
 
-// note - storing Product data in a slice to optimize rendering data
+// note - storing Product data in a slice to optimize rendering & standard way of storing data
 const productsAdapter = createEntityAdapter<Product>();
 
 // async thunk to get list of products
 export const fetchProductsAsync = createAsyncThunk<Product[]>(
   "catalog/fetchProductsAsync",
+  // note - thunkAPI is available from createAsyncThunk to handle errors
   async (_, thunkAPI) => {
     try {
       return await agent.Catalog.list();
     } catch (error: any) {
+      // this function will be rejected on error
       return thunkAPI.rejectWithValue({
         error: error.data,
       });
@@ -34,7 +36,7 @@ export const fetchProductAsync = createAsyncThunk<Product, number>(
     try {
       return await agent.Catalog.details(productId);
     } catch (error: any) {
-      // note - on error, reducer function will be Rejected rather than Fullfilled
+      // note - on error, reducer function will be Rejected rather than Fulfilled
       return thunkAPI.rejectWithValue({
         error: error.data,
       });
