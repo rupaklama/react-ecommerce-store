@@ -79,12 +79,12 @@ const requests = {
 const Catalog = {
   list: () => requests.get("products"),
   details: (id: number) => requests.get(`products/${id}`),
+  fetchFilters: () => requests.get("products/filters"),
 };
 
 const Basket = {
   get: () => requests.get("basket"),
-  addItem: (productId: number, quantity = 1) =>
-    requests.post(`basket?productId=${productId}&quantity=${quantity}`, {}),
+  addItem: (productId: number, quantity = 1) => requests.post(`basket?productId=${productId}&quantity=${quantity}`, {}),
   removeItem: (productId: number, quantity = 1) =>
     requests.delete(`basket?productId=${productId}&quantity=${quantity}`),
 };
