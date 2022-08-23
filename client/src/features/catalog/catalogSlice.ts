@@ -1,3 +1,4 @@
+import { ProductParams } from "./../../app/models/product";
 import { createAsyncThunk, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
 import agent from "../../app/api/agent";
 import { Product } from "../../app/models/product";
@@ -13,13 +14,38 @@ import { RootState } from "../../app/store/configureStore";
 // note - storing Product data in a slice to optimize rendering & standard way of storing data
 const productsAdapter = createEntityAdapter<Product>();
 
+interface CatalogState {
+  productsLoaded: boolean;
+  filtersLoaded: boolean;
+  status: string;
+  brands: string[];
+  types: string[];
+  productParams: ProductParams;
+}
+
+function getAxiosParams(productParams: ProductParams) {
+  const params = new URLSearchParams();
+  params.append("pageNumber", productParams.pageNumber.toString());
+  params.append("pageSize", productParams.pageSize.toString());
+  params.append("orderBy", productParams.orderBy.toString());
+
+  // optional queries
+  if (productParams.searchTerm) params.append("searchTerm", productParams.searchTerm);
+  if (productParams.brands) params.append("brands", productParams.brands.toString());
+  if (productParams.types) params.append("brands", productParams.types.toString());
+
+  return params;
+}
+
 // async thunk to get list of products
-export const fetchProductsAsync = createAsyncThunk<Product[]>(
+export const fetchProductsAsync = createAsyncThunk<Product[], void, { state: RootState }>(
   "catalog/fetchProductsAsync",
   // note - thunkAPI is available from createAsyncThunk to handle errors
   async (_, thunkAPI) => {
+    // getting params values from our state
+    const params = getAxiosParams(thunkAPI.getState().catalog.productParams);
     try {
-      return await agent.Catalog.list();
+      return await agent.Catalog.list(params);
     } catch (error: any) {
       // this function will be rejected on error
       return thunkAPI.rejectWithValue({
@@ -53,11 +79,20 @@ export const fetchFilters = createAsyncThunk("catalog/fetchFilters", async (_, t
   }
 });
 
+// helper function
+function initParams() {
+  return {
+    pageNumber: 1,
+    pageSize: 6,
+    orderBy: "name",
+  };
+}
+
 // Catalog slice to store Product data
 export const catalogSlice = createSlice({
   name: "catalog",
   // note - inside of productsAdapter, we get a method to create our initial state
-  initialState: productsAdapter.getInitialState({
+  initialState: productsAdapter.getInitialState<CatalogState>({
     // getInitialState returns initial state for our Product
     productsLoaded: false,
     filtersLoaded: false,
@@ -65,8 +100,18 @@ export const catalogSlice = createSlice({
 
     brands: [],
     types: [],
+    productParams: initParams(),
   }),
-  reducers: {},
+  reducers: {
+    setProductParams: (state, action) => {
+      state.productsLoaded = false;
+      state.productParams = { ...state.productParams, ...action.payload };
+    },
+
+    resetProductParams: state => {
+      state.productParams = initParams();
+    },
+  },
 
   // since we have async thunk api call above - fetchProductsAsync
   extraReducers: builder => {
@@ -126,5 +171,6 @@ export const catalogSlice = createSlice({
 // Note - entity adapter provides a selector factory that generates
 // the most common Selectors for our store data in Catalog Slice
 export const productSelectors = productsAdapter.getSelectors((state: RootState) => state.catalog);
-
 // now we can use productSelectors to get data from our store
+
+export const { setProductParams, resetProductParams } = catalogSlice.actions;
