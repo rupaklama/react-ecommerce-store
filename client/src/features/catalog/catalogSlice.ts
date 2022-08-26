@@ -23,8 +23,11 @@ interface CatalogState {
   productParams: ProductParams;
 }
 
+// To add query params in our async api calls
 function getAxiosParams(productParams: ProductParams) {
   const params = new URLSearchParams();
+
+  // key/value pair
   params.append("pageNumber", productParams.pageNumber.toString());
   params.append("pageSize", productParams.pageSize.toString());
   params.append("orderBy", productParams.orderBy.toString());
@@ -42,7 +45,9 @@ export const fetchProductsAsync = createAsyncThunk<Product[], void, { state: Roo
   "catalog/fetchProductsAsync",
   // note - thunkAPI is available from createAsyncThunk to handle errors
   async (_, thunkAPI) => {
-    // getting params values from our state
+    // getState() is to get access state for params values
+    // NOTE - Params CANNOT be send as on Object in agent.list(), we need to make it type of URLSearchParams
+    // Passing our Saved Params in the store state on the api call
     const params = getAxiosParams(thunkAPI.getState().catalog.productParams);
     try {
       return await agent.Catalog.list(params);
@@ -80,6 +85,7 @@ export const fetchFilters = createAsyncThunk("catalog/fetchFilters", async (_, t
 });
 
 // helper function
+// initial params values
 function initParams() {
   return {
     pageNumber: 1,
@@ -104,7 +110,10 @@ export const catalogSlice = createSlice({
   }),
   reducers: {
     setProductParams: (state, action) => {
+      // console.log(action);
       state.productsLoaded = false;
+
+      // action.payload is an additional query param object
       state.productParams = { ...state.productParams, ...action.payload };
     },
 
