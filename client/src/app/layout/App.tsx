@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 
-import { Container, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
+import {
+  Container,
+  createTheme,
+  CssBaseline,
+  ThemeProvider,
+} from "@mui/material";
 
 import Header from "./Header";
 import Catalog from "../../features/catalog/Catalog";
@@ -31,8 +36,8 @@ const App = () => {
 
     if (buyerId) {
       agent.Basket.get()
-        .then(basket => dispatch(setBasket(basket)))
-        .catch(err => console.error(err))
+        .then((basket) => dispatch(setBasket(basket)))
+        .catch((err) => console.error(err))
         .finally(() => setLoading(false));
     } else {
       setLoading(false);

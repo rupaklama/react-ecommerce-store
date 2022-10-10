@@ -7,7 +7,9 @@ interface StoreContextValue {
   removeItem: (productId: number, quantity: number) => void;
 }
 
-export const StoreContext = createContext<StoreContextValue | undefined>(undefined);
+export const StoreContext = createContext<StoreContextValue | undefined>(
+  undefined
+);
 
 // custom hook
 export function useStoreContext() {
@@ -26,15 +28,19 @@ export function StoreProvider({ children }: PropsWithChildren<any>) {
   function removeItem(productId: number, quantity: number) {
     if (!basket) return;
     const items = [...basket.items];
-    const itemIndex = items.findIndex(i => i.productId === productId);
+    const itemIndex = items.findIndex((i) => i.productId === productId);
     if (itemIndex >= 0) {
       items[itemIndex].quantity -= quantity;
       if (items[itemIndex].quantity === 0) items.splice(itemIndex, 1);
-      setBasket(prevState => {
+      setBasket((prevState) => {
         return { ...prevState!, items };
       });
     }
   }
 
-  return <StoreContext.Provider value={{ basket, setBasket, removeItem }}>{children}</StoreContext.Provider>;
+  return (
+    <StoreContext.Provider value={{ basket, setBasket, removeItem }}>
+      {children}
+    </StoreContext.Provider>
+  );
 }

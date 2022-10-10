@@ -1,3 +1,4 @@
+import { MetaData } from "./../../app/models/pagination";
 import { ProductParams } from "./../../app/models/product";
 import { createAsyncThunk, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
 import agent from "../../app/api/agent";
@@ -21,21 +22,24 @@ interface CatalogState {
   brands: string[];
   types: string[];
   productParams: ProductParams;
+  metaData: MetaData | null;
 }
 
 // To add query params in our async api calls
 function getAxiosParams(productParams: ProductParams) {
   const params = new URLSearchParams();
 
-  // key/value pair
+  // key/value pair - adding params
   params.append("pageNumber", productParams.pageNumber.toString());
   params.append("pageSize", productParams.pageSize.toString());
   params.append("orderBy", productParams.orderBy.toString());
 
   // optional queries
   if (productParams.searchTerm) params.append("searchTerm", productParams.searchTerm);
-  if (productParams.brands) params.append("brands", productParams.brands.toString());
-  if (productParams.types) params.append("brands", productParams.types.toString());
+
+  // don't append this unless there is a query for brands & types
+  if (productParams.brands?.length > 0) params.append("brands", productParams.brands.toString());
+  if (productParams.types?.length > 0) params.append("types", productParams.types.toString());
 
   return params;
 }
@@ -49,8 +53,14 @@ export const fetchProductsAsync = createAsyncThunk<Product[], void, { state: Roo
     // NOTE - Params CANNOT be send as on Object in agent.list(), we need to make it type of URLSearchParams
     // Passing our Saved Params in the store state on the api call
     const params = getAxiosParams(thunkAPI.getState().catalog.productParams);
+
     try {
-      return await agent.Catalog.list(params);
+      const response = await agent.Catalog.list(params);
+      // setting paginated data in our store
+      thunkAPI.dispatch(setMetaData(response.metaData));
+
+      // setting paginated data in our store & returning data items at the same time
+      return response.items;
     } catch (error: any) {
       // this function will be rejected on error
       return thunkAPI.rejectWithValue({
@@ -91,6 +101,9 @@ function initParams() {
     pageNumber: 1,
     pageSize: 6,
     orderBy: "name",
+
+    brands: [],
+    types: [],
   };
 }
 
@@ -107,6 +120,9 @@ export const catalogSlice = createSlice({
     brands: [],
     types: [],
     productParams: initParams(),
+
+    // to store pagination data
+    metaData: null,
   }),
   reducers: {
     setProductParams: (state, action) => {
@@ -114,11 +130,22 @@ export const catalogSlice = createSlice({
       state.productsLoaded = false;
 
       // action.payload is an additional query param object
+      // note - set pageNumber to 1 whenever on setting params to avoid bugs
+      state.productParams = { ...state.productParams, ...action.payload, pageNumber: 1 };
+    },
+
+    // to change page number
+    setPageNumber: (state, action) => {
+      state.productsLoaded = false;
       state.productParams = { ...state.productParams, ...action.payload };
     },
 
     resetProductParams: state => {
       state.productParams = initParams();
+    },
+
+    setMetaData: (state, action) => {
+      state.metaData = action.payload;
     },
   },
 
@@ -182,4 +209,4 @@ export const catalogSlice = createSlice({
 export const productSelectors = productsAdapter.getSelectors((state: RootState) => state.catalog);
 // now we can use productSelectors to get data from our store
 
-export const { setProductParams, resetProductParams } = catalogSlice.actions;
+export const { setProductParams, resetProductParams, setMetaData, setPageNumber } = catalogSlice.actions;

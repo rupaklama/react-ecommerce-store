@@ -1,4 +1,8 @@
 namespace API.Entities
+
+// In C# term entity is commonly related to database representation of the table - an object 
+// and should contain an Id attribute.
+
 {
   public class Product
   {

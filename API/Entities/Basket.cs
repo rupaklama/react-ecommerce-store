@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+// In C# term entity is commonly related to database representation of the table - an object 
+// and should contain an Id attribute.
 namespace API.Entities
 {
   public class Basket

@@ -20,7 +20,7 @@ const AboutPage = () => {
   const getValidationError = () => {
     agent.TestErrors.getValidationError()
       .then(() => console.log("should not see this"))
-      .catch(err => setValidationErrors(err));
+      .catch((err) => setValidationErrors(err));
   };
 
   return (
@@ -31,25 +31,33 @@ const AboutPage = () => {
       <ButtonGroup>
         <Button
           variant="contained"
-          onClick={() => agent.TestErrors.get400Error().catch(err => console.log(err))}
+          onClick={() =>
+            agent.TestErrors.get400Error().catch((err) => console.log(err))
+          }
         >
           Test 400 Error
         </Button>
         <Button
           variant="contained"
-          onClick={() => agent.TestErrors.get401Error().catch(err => console.log(err))}
+          onClick={() =>
+            agent.TestErrors.get401Error().catch((err) => console.log(err))
+          }
         >
           Test 401 Error
         </Button>
         <Button
           variant="contained"
-          onClick={() => agent.TestErrors.get404Error().catch(err => console.log(err))}
+          onClick={() =>
+            agent.TestErrors.get404Error().catch((err) => console.log(err))
+          }
         >
           Test 404 Error
         </Button>
         <Button
           variant="contained"
-          onClick={() => agent.TestErrors.get500Error().catch(err => console.log(err))}
+          onClick={() =>
+            agent.TestErrors.get500Error().catch((err) => console.log(err))
+          }
         >
           Test 500 Error
         </Button>
@@ -62,7 +70,7 @@ const AboutPage = () => {
         <Alert severity="error">
           <AlertTitle>Validation Errors</AlertTitle>
           <List>
-            {validationErrors.map(err => (
+            {validationErrors.map((err) => (
               <ListItem key={err}>
                 <ListItemText>{err}</ListItemText>
               </ListItem>

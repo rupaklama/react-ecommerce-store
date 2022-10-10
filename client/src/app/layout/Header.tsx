@@ -1,5 +1,15 @@
 import { ShoppingCart } from "@mui/icons-material";
-import { AppBar, Badge, IconButton, List, ListItem, Switch, Toolbar, Typography, Box } from "@mui/material";
+import {
+  AppBar,
+  Badge,
+  IconButton,
+  List,
+  ListItem,
+  Switch,
+  Toolbar,
+  Typography,
+  Box,
+} from "@mui/material";
 import { Link, NavLink } from "react-router-dom";
 import { useAppSelector } from "../store/configureStore";
 
@@ -32,15 +42,26 @@ const navStyles = {
 };
 
 const Header: React.FC<Props> = ({ darkMode, handleThemeChange }) => {
-  const { basket } = useAppSelector(state => state.basket);
+  const { basket } = useAppSelector((state) => state.basket);
   const itemCount = basket?.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <AppBar position="static" sx={{ mb: 4 }}>
       <Toolbar
-        sx={{ display: "flex", justifyContent: "space-evenly", alignItems: "center", flexWrap: "wrap" }}
+        sx={{
+          display: "flex",
+          justifyContent: "space-evenly",
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}
       >
-        <Typography variant="h6" component={NavLink} to="/" exact sx={navStyles}>
+        <Typography
+          variant="h6"
+          component={NavLink}
+          to="/"
+          exact
+          sx={navStyles}
+        >
           My Store
         </Typography>
 

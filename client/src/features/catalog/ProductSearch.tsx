@@ -13,7 +13,7 @@ const ProductSearch = () => {
   // delay the search functionality so to wait for user to finish typing
   const debouncedSearch = debounce(e => {
     dispatch(setProductParams({ searchTerm: e.target.value }));
-  }, 1000);
+  }, 1500);
 
   return (
     <TextField

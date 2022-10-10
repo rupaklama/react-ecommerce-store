@@ -2,6 +2,8 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { history } from "../..";
 
+import { PaginatedResponse } from "../models/pagination";
+
 /* to delay the response */
 const sleep = () => new Promise(resolve => setTimeout(resolve, 500));
 
@@ -17,6 +19,21 @@ const responseBody = (response: AxiosResponse) => response.data;
 axios.interceptors.response.use(
   async response => {
     await sleep();
+
+    // accessing response header for Pagination data
+    const pagination = response.headers["pagination"];
+
+    if (pagination) {
+      // note - overriding what is inside of response.data with Paginated response
+      // to set pagination data in our store & returning data items at the same time
+      response.data = new PaginatedResponse(response.data, JSON.parse(pagination));
+
+      // Paginated response
+      // console.log(response);
+      // this will contain both of array items & header pagination object
+      return response;
+    }
+
     // on success
     return response;
   },
@@ -71,6 +88,7 @@ axios.interceptors.response.use(
 // http requests
 const requests = {
   get: (url: string, params?: URLSearchParams) => axios.get(url, { params }).then(responseBody),
+
   post: (url: string, body: {}) => axios.post(url, body).then(responseBody),
   put: (url: string, body: {}) => axios.put(url, body).then(responseBody),
   delete: (url: string) => axios.delete(url).then(responseBody),
