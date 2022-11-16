@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 
-import {
-  Container,
-  createTheme,
-  CssBaseline,
-  ThemeProvider,
-} from "@mui/material";
+import { Container, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 
 import Header from "./Header";
 import Catalog from "../../features/catalog/Catalog";
@@ -26,6 +21,8 @@ import Loader from "./Loader";
 import CheckoutPage from "../../features/checkout/CheckoutPage";
 import { useAppDispatch } from "../store/configureStore";
 import { setBasket } from "../../features/basket/basketSlice";
+import Login from "../../features/account/Login";
+import Register from "../../features/account/Register";
 
 const App = () => {
   const dispatch = useAppDispatch();
@@ -36,8 +33,8 @@ const App = () => {
 
     if (buyerId) {
       agent.Basket.get()
-        .then((basket) => dispatch(setBasket(basket)))
-        .catch((err) => console.error(err))
+        .then(basket => dispatch(setBasket(basket)))
+        .catch(err => console.error(err))
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
@@ -75,6 +72,8 @@ const App = () => {
           <Route exact path="/server-error" component={ServerError} />
           <Route exact path="/basket" component={BasketPage} />
           <Route exact path="/checkout" component={CheckoutPage} />
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/register" component={Register} />
           <Route component={NotFound} />
         </Switch>
       </Container>

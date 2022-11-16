@@ -107,6 +107,12 @@ const Basket = {
     requests.delete(`basket?productId=${productId}&quantity=${quantity}`),
 };
 
+const Account = {
+  login: (values: any) => requests.post("account/login", values),
+  register: (values: any) => requests.post("account/register", values),
+  current: () => requests.get("account/currentUser"),
+};
+
 /* to test errors */
 const TestErrors = {
   get400Error: () => requests.get("buggy/bad-request"),
@@ -119,6 +125,7 @@ const TestErrors = {
 const agent = {
   Catalog,
   Basket,
+  Account,
   TestErrors,
 };
 
