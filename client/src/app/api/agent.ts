@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { history } from "../..";
 
 import { PaginatedResponse } from "../models/pagination";
+import { store } from "../store/configureStore";
 
 /* to delay the response */
 const sleep = () => new Promise(resolve => setTimeout(resolve, 500));
@@ -14,6 +15,24 @@ axios.defaults.withCredentials = true;
 
 // getting axios response data & storing it here
 const responseBody = (response: AxiosResponse) => response.data;
+
+/* Request Interceptor */
+axios.interceptors.request.use(config => {
+  // note - set user object inside Redux Store before running the code below
+  // this is done in fetchCurrentUser with setUser action creator
+
+  // using redux store directly here to access state
+  const token = store.getState().account.user?.token;
+
+  // If config.headers is null then set it to an empty object before using it
+  config.headers = config.headers ?? {};
+
+  // Sending Bearer token in the Authorization Header
+  // header! - turning off typescript to specify that we know that variable will be not null
+  if (token) config.headers!.Authorization = `Bearer ${token}`;
+
+  return config;
+});
 
 /* Intercepting axios response to do something with it */
 axios.interceptors.response.use(
@@ -65,6 +84,8 @@ axios.interceptors.response.use(
         toast.error(data.title);
         break;
       case 401:
+        // default message if nothing coming from the backend
+        // toast.error(data.title || "Unauthorized");
         toast.error(data.title);
         break;
 
@@ -110,7 +131,8 @@ const Basket = {
 const Account = {
   login: (values: any) => requests.post("account/login", values),
   register: (values: any) => requests.post("account/register", values),
-  current: () => requests.get("account/currentUser"),
+  // to persist auth
+  currentUser: () => requests.get("account/currentUser"),
 };
 
 /* to test errors */

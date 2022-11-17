@@ -16,10 +16,7 @@ const initialState: BasketState = {
 // note - createAsyncThunk<void, void, {}> is a 'void' function by default
 // note - first arg is what we are returning from this method <Basket> type,
 // second arg is argument type this method takes - payload creator
-export const addBasketItemAsync = createAsyncThunk<
-  Basket,
-  { productId: number; quantity: number }
->(
+export const addBasketItemAsync = createAsyncThunk<Basket, { productId: number; quantity: number }>(
   // name or typePrefix
   "basket/addBasketItemAsync",
 
@@ -37,10 +34,7 @@ export const addBasketItemAsync = createAsyncThunk<
 );
 
 // when removing item in our api, there will be no return, therefore return type is void - first arg
-export const removeBasketItemAsync = createAsyncThunk<
-  void,
-  { productId: number; quantity: number; name?: string }
->(
+export const removeBasketItemAsync = createAsyncThunk<void, { productId: number; quantity: number; name?: string }>(
   "basket/removeBasketItemAsync",
 
   async ({ productId, quantity }, thunkAPI) => {
@@ -65,7 +59,7 @@ export const basketSlice = createSlice({
 
   // note - all the state updates are getting done inside here
   // Add reducers for additional action types here, and handle loading state as needed
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     // note - createAsyncThunk creates an Action creator, meaning it is an Action Creator not just Async function
 
     // addCase() - Adds a case reducer to handle a single exact action type created by createAsyncThunk
@@ -96,17 +90,14 @@ export const basketSlice = createSlice({
 
     // basket remove async function
     builder.addCase(removeBasketItemAsync.pending, (state, action) => {
-      state.status =
-        "pendingRemoveItem" + action.meta.arg.productId + action.meta.arg.name;
+      state.status = "pendingRemoveItem" + action.meta.arg.productId + action.meta.arg.name;
     });
 
     builder.addCase(removeBasketItemAsync.fulfilled, (state, action) => {
       // destructuring payload
       const { productId, quantity } = action.meta.arg;
 
-      const itemIndex = state.basket?.items.findIndex(
-        (i) => i.productId === productId
-      );
+      const itemIndex = state.basket?.items.findIndex(i => i.productId === productId);
 
       if (itemIndex === -1 || itemIndex === undefined) return;
 
@@ -114,8 +105,7 @@ export const basketSlice = createSlice({
       state.basket!.items[itemIndex].quantity -= quantity;
 
       // item quantity = 0
-      if (state.basket?.items[itemIndex].quantity === 0)
-        state.basket.items.splice(itemIndex, 1);
+      if (state.basket?.items[itemIndex].quantity === 0) state.basket.items.splice(itemIndex, 1);
 
       state.status = "idle";
     });

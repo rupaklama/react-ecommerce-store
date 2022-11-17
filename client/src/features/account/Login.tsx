@@ -8,14 +8,18 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Paper } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 import { useForm } from "react-hook-form";
 
-import agent from "../../app/api/agent";
 import { LoadingButton } from "@mui/lab";
+import { useAppDispatch } from "../../app/store/configureStore";
+import { signInUser } from "./accountSlice";
 
 const Login = () => {
+  const history = useHistory();
+  const dispatch = useAppDispatch();
+
   const {
     register,
     handleSubmit,
@@ -23,16 +27,13 @@ const Login = () => {
     reset,
   } = useForm({
     // mode to validate the input
-    mode: "onTouched",
+    mode: "all",
   });
 
   // FieldValues is what we get back from react-hook-form - form data
   const submitForm = async (data: any) => {
-    try {
-      await agent.Account.login(data);
-    } catch (err) {
-      console.log(err);
-    }
+    await dispatch(signInUser(data));
+    history.push("/catalog");
 
     // clear input fields on submit
     reset();

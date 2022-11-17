@@ -24,11 +24,19 @@ import { setBasket } from "../../features/basket/basketSlice";
 import Login from "../../features/account/Login";
 import Register from "../../features/account/Register";
 
+import { fetchCurrentUser } from "../../features/account/accountSlice";
+
 const App = () => {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // fetch auth user if any on App mount or page refresh with Axios Interceptor
+    // Only make this request if we have auth token in our local storage
+    if (localStorage.getItem("user")) {
+      dispatch(fetchCurrentUser());
+    }
+
     const buyerId = getCookie("buyerId");
 
     if (buyerId) {

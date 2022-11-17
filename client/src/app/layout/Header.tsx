@@ -1,17 +1,8 @@
 import { ShoppingCart } from "@mui/icons-material";
-import {
-  AppBar,
-  Badge,
-  IconButton,
-  List,
-  ListItem,
-  Switch,
-  Toolbar,
-  Typography,
-  Box,
-} from "@mui/material";
+import { AppBar, Badge, IconButton, List, ListItem, Switch, Toolbar, Typography, Box } from "@mui/material";
 import { Link, NavLink } from "react-router-dom";
 import { useAppSelector } from "../store/configureStore";
+import SignedInMenu from "./SignedInMenu";
 
 interface Props {
   darkMode: boolean;
@@ -42,7 +33,9 @@ const navStyles = {
 };
 
 const Header: React.FC<Props> = ({ darkMode, handleThemeChange }) => {
-  const { basket } = useAppSelector((state) => state.basket);
+  const { basket } = useAppSelector(state => state.basket);
+  const { user } = useAppSelector(state => state.account);
+
   const itemCount = basket?.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -55,13 +48,7 @@ const Header: React.FC<Props> = ({ darkMode, handleThemeChange }) => {
           flexWrap: "wrap",
         }}
       >
-        <Typography
-          variant="h6"
-          component={NavLink}
-          to="/"
-          exact
-          sx={navStyles}
-        >
+        <Typography variant="h6" component={NavLink} to="/" exact sx={navStyles}>
           My Store
         </Typography>
 
@@ -80,13 +67,17 @@ const Header: React.FC<Props> = ({ darkMode, handleThemeChange }) => {
             </Badge>
           </IconButton>
 
-          <List sx={{ display: "flex" }}>
-            {rightLinks.map(({ title, path }) => (
-              <ListItem component={NavLink} to={path} key={path} sx={navStyles}>
-                {title.toUpperCase()}
-              </ListItem>
-            ))}
-          </List>
+          {user ? (
+            <SignedInMenu />
+          ) : (
+            <List sx={{ display: "flex" }}>
+              {rightLinks.map(({ title, path }) => (
+                <ListItem component={NavLink} to={path} key={path} sx={navStyles}>
+                  {title.toUpperCase()}
+                </ListItem>
+              ))}
+            </List>
+          )}
 
           <Switch checked={darkMode} onChange={handleThemeChange} />
         </Box>
