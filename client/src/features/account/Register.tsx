@@ -7,30 +7,43 @@ import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { Alert, AlertTitle, List, ListItem, ListItemText, Paper } from "@mui/material";
+import { Paper } from "@mui/material";
 import { Link, useHistory } from "react-router-dom";
 
 import { useForm } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 
-import { signInUser } from "./accountSlice";
 import agent from "../../app/api/agent";
-import { useState } from "react";
+import { toast } from "react-toastify";
 
 const Register = () => {
-  // const history = useHistory();
-
-  const [validationErrors, setValidationErrors] = useState([]);
+  const history = useHistory();
 
   const {
     register,
     handleSubmit,
     formState: { isSubmitting, isValid, errors },
+    setError,
     reset,
   } = useForm({
     // mode to validate the input
     mode: "all",
   });
+
+  function handleApiErrors(errors: any) {
+    if (errors.length > 0) {
+      errors.forEach((err: any) => {
+        if (err.includes("Password")) {
+          // password - input's name
+          setError("password", { message: err });
+        } else if (err.includes("Email")) {
+          setError("email", { message: err });
+        } else if (err.includes("Username")) {
+          setError("username", { message: err });
+        }
+      });
+    }
+  }
 
   return (
     <Container
@@ -47,7 +60,12 @@ const Register = () => {
       <Box
         component="form"
         onSubmit={handleSubmit(data => {
-          agent.Account.register(data).catch(err => setValidationErrors(err));
+          agent.Account.register(data)
+            .then(() => {
+              toast.success("Registration successful - you can now login!");
+              history.push("/login");
+            })
+            .catch(err => handleApiErrors(err));
 
           reset();
         })}
@@ -69,7 +87,14 @@ const Register = () => {
           margin="normal"
           fullWidth
           label="Email address"
-          {...register("email", { required: "Email is required" })}
+          {...register("email", {
+            required: "Email is required",
+            // validating email on client side with regex pattern
+            pattern: {
+              value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
+              message: "Not a valid email address",
+            },
+          })}
           error={!!errors.email}
           helperText={errors?.email?.message}
         />
@@ -78,23 +103,18 @@ const Register = () => {
           fullWidth
           label="Password"
           type="password"
-          {...register("password", { required: "Password is required" })}
+          {...register("password", {
+            required: "Password is required",
+            pattern: {
+              value:
+                /(?=^.{6,10}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&amp;*()_+}{&quot;:;'?/&gt;.&lt;,])(?!.*\s).*$/,
+              message:
+                "Password should be at least 1 small-case letter, 1 Capital letter, 1 digit, 1 special character and the length should be between 6-10 characters.",
+            },
+          })}
           error={!!errors.password}
           helperText={errors?.password?.message}
         />
-
-        {validationErrors.length > 0 && (
-          <Alert severity="error">
-            <AlertTitle>Validation Errors</AlertTitle>
-            <List>
-              {validationErrors.map(err => (
-                <ListItem key={err}>
-                  <ListItemText>{err}</ListItemText>
-                </ListItem>
-              ))}
-            </List>
-          </Alert>
-        )}
 
         <LoadingButton
           loading={isSubmitting}
