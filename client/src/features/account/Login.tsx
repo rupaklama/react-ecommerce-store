@@ -30,6 +30,9 @@ const Login = () => {
     mode: "all",
   });
 
+  // console.log(isValid);
+  // console.log(errors);
+
   // FieldValues is what we get back from react-hook-form - form data
   const submitForm = async (data: any) => {
     await dispatch(signInUser(data));
@@ -60,7 +63,9 @@ const Login = () => {
 
           {...register("username", { required: "Username is required" })}
           // double bang cast username into boolean
+          // if username error object exists it will be true, else false
           error={!!errors.username}
+          // accessing error message in error object
           helperText={errors?.username?.message}
         />
         <TextField
@@ -75,6 +80,8 @@ const Login = () => {
 
         <LoadingButton
           loading={isSubmitting}
+          // isValid sets to true if the form doesn't have any errors
+          // disabled={isValid === false}
           disabled={!isValid}
           type="submit"
           fullWidth
