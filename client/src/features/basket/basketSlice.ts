@@ -55,6 +55,9 @@ export const basketSlice = createSlice({
     setBasket: (state: BasketState, action: PayloadAction<any>) => {
       state.basket = action.payload;
     },
+    clearBasket: state => {
+      state.basket = null;
+    },
   },
 
   // note - all the state updates are getting done inside here
@@ -117,6 +120,6 @@ export const basketSlice = createSlice({
   },
 });
 
-export const { setBasket } = basketSlice.actions;
+export const { setBasket, clearBasket } = basketSlice.actions;
 
 export default basketSlice.reducer;
