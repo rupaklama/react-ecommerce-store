@@ -8,7 +8,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Paper } from "@mui/material";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { useForm } from "react-hook-form";
 
@@ -17,7 +17,9 @@ import { useAppDispatch } from "../../app/store/configureStore";
 import { signInUser } from "./accountSlice";
 
 const Login = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const dispatch = useAppDispatch();
 
   const {
@@ -36,7 +38,7 @@ const Login = () => {
   // FieldValues is what we get back from react-hook-form - form data
   const submitForm = async (data: any) => {
     await dispatch(signInUser(data));
-    history.push("/catalog");
+    navigate(location.state?.from?.pathname || "/catalog");
 
     // clear input fields on submit
     reset();

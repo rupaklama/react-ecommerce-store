@@ -48,7 +48,7 @@ const Header: React.FC<Props> = ({ darkMode, handleThemeChange }) => {
           flexWrap: "wrap",
         }}
       >
-        <Typography variant="h6" component={NavLink} to="/" exact sx={navStyles}>
+        <Typography variant="h6" component={NavLink} to="/" sx={navStyles}>
           My Store
         </Typography>
 

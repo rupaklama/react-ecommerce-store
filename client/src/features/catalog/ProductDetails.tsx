@@ -17,28 +17,23 @@ import Loader from "../../app/layout/Loader";
 
 import { LoadingButton } from "@mui/lab";
 import { useAppDispatch, useAppSelector } from "../../app/store/configureStore";
-import {
-  addBasketItemAsync,
-  removeBasketItemAsync,
-} from "../basket/basketSlice";
+import { addBasketItemAsync, removeBasketItemAsync } from "../basket/basketSlice";
 import { fetchProductAsync, productSelectors } from "./catalogSlice";
 
 const ProductDetails = () => {
-  const { basket, status } = useAppSelector((state) => state.basket);
-  const { status: productStatus } = useAppSelector((state) => state.catalog);
+  const { basket, status } = useAppSelector(state => state.basket);
+  const { status: productStatus } = useAppSelector(state => state.catalog);
 
   const dispatch = useAppDispatch();
 
   const { id } = useParams<{ id: string }>();
 
   // Product will be fetched once and store in our app
-  const product = useAppSelector((state) =>
-    productSelectors.selectById(state, id)
-  );
+  const product = useAppSelector(state => productSelectors.selectById(state, id!));
 
   const [quantity, setQuantity] = useState(0);
 
-  const item = basket?.items.find((i) => i.productId === product?.id);
+  const item = basket?.items.find(i => i.productId === product?.id);
 
   useEffect(() => {
     // axios
@@ -49,7 +44,7 @@ const ProductDetails = () => {
 
     if (item) setQuantity(item.quantity);
 
-    if (!product) dispatch(fetchProductAsync(parseInt(id)));
+    if (!product) dispatch(fetchProductAsync(parseInt(id!)));
   }, [dispatch, id, item, product]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,31 +58,22 @@ const ProductDetails = () => {
     if (!item || quantity > item.quantity) {
       // quantity - local state qty
       const addQty = item ? quantity - item.quantity : quantity; // or add new item qty
-      dispatch(
-        addBasketItemAsync({ productId: product?.id!, quantity: addQty })
-      );
+      dispatch(addBasketItemAsync({ productId: product?.id!, quantity: addQty }));
     } else {
       // if we do have an item & local qty is less than app state qty
       const minusQty = item ? item.quantity - quantity : quantity;
-      dispatch(
-        removeBasketItemAsync({ productId: product?.id!, quantity: minusQty })
-      );
+      dispatch(removeBasketItemAsync({ productId: product?.id!, quantity: minusQty }));
     }
   };
 
-  if (productStatus.includes("pending"))
-    return <Loader message="loading product..." />;
+  if (productStatus.includes("pending")) return <Loader message="loading product..." />;
 
   if (!product) return <NotFound />;
 
   return (
     <Grid container spacing={6}>
       <Grid item xs={6}>
-        <img
-          src={product.pictureUrl}
-          alt={product.name}
-          style={{ width: "100%" }}
-        />
+        <img src={product.pictureUrl} alt={product.name} style={{ width: "100%" }} />
       </Grid>
       <Grid item xs={6}>
         <Typography variant="h3">{product.name}</Typography>
@@ -138,9 +124,7 @@ const ProductDetails = () => {
 
           <Grid item xs={6}>
             <LoadingButton
-              disabled={
-                item?.quantity === quantity || (!item && quantity === 0)
-              }
+              disabled={item?.quantity === quantity || (!item && quantity === 0)}
               loading={status.includes("pending")}
               onClick={handleUpdateCart}
               sx={{ height: "55px" }}
