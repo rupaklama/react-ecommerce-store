@@ -81,7 +81,7 @@ const Register = () => {
           {...register("username", { required: "Username is required" })}
           // double bang cast username into boolean
           error={!!errors.username}
-          helperText={errors?.username?.message}
+          helperText={errors?.username?.message as string}
         />
         <TextField
           margin="normal"
@@ -96,7 +96,7 @@ const Register = () => {
             },
           })}
           error={!!errors.email}
-          helperText={errors?.email?.message}
+          helperText={errors?.email?.message as string}
         />
         <TextField
           margin="normal"
@@ -113,7 +113,7 @@ const Register = () => {
             },
           })}
           error={!!errors.password}
-          helperText={errors?.password?.message}
+          helperText={errors?.password?.message as string}
         />
 
         <LoadingButton

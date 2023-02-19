@@ -68,7 +68,7 @@ const Login = () => {
           // if username error object exists it will be true, else false
           error={!!errors.username}
           // accessing error message in error object
-          helperText={errors?.username?.message}
+          helperText={errors?.username?.message as string}
         />
         <TextField
           margin="normal"
@@ -77,7 +77,7 @@ const Login = () => {
           type="password"
           {...register("password", { required: "Password is required" })}
           error={!!errors.password}
-          helperText={errors?.password?.message}
+          helperText={errors?.password?.message as string}
         />
 
         <LoadingButton

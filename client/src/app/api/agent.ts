@@ -59,7 +59,7 @@ axios.interceptors.response.use(
   // on failure
   (error: AxiosError) => {
     // console.log("caught by interceptor");
-    const { data, status } = error.response as any;
+    const { data, status } = error.response as AxiosResponse;
     // console.log(data);
 
     switch (status) {
